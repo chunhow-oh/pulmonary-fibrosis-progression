@@ -19,6 +19,6 @@ pip install -r requirements.txt
 streamlit run app.py
 ```
 The app requires patient details to be indicated, and a zip folder containing CT scans of patients lungs in to be uploaded before prediction. The CT scans has to be in .dcm format. A sample of this zip folder of .dcm images can be found under `sample dataset` folder.
-
+Administrator privilages may be required to run the app. This can be done by running Anaconda prompt as an administrator on Windows.
 
 # About the model

@@ -41,6 +41,7 @@ def main():
     if uploaded_file is not None:
         try:
             dcm_paths, datasets, image_path = read_uploaded_file(uploaded_file)
+            print(image_path)
             plotted_img = os.path.join('plotted_img',image_path.split('/')[-2] + '.png')
 
             if os.path.exists(plotted_img):
@@ -100,8 +101,8 @@ def read_uploaded_file(uploaded_file):
     for dcm_path in dcm_paths:
         datasets.append(pydicom.dcmread(dcm_path))
 
-    image_path = dcm_paths[0].replace(dcm_paths[0].split('/')[-1],'')
-
+    image_path = dcm_paths[0].replace('\\','/')
+    image_path=image_path.replace(image_path.split('/')[-1],'')
     return dcm_paths, datasets, image_path
 
 

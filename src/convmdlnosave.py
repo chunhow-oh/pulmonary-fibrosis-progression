@@ -17,23 +17,77 @@ import math
 # Paths expect an / at the end
 def conv3dModel(age,sex,week,fvc,percent,smokingStatus,imgpath,modelpath='',scalerpath=''):
     #print("conv3D Model:")
-    xImg = imageTrans(imgpath)
-    xrImg=[]
-    for img in xImg:
-        jImg=[]
-        img=img/32768*255
-        for i in img:
-            kImg=np.dstack((i,i,i))
-            jImg.append(kImg[0])
-        xrImg.append(jImg)
-    xrImg=np.array(xrImg)   #xImg=loadImages(jpegfolder)
+    try:
+        jpegfolder = imageTrans(imgpath)
+        xrImg=loadImages(jpegfolder)
+    except:
+        print('Saving JPEGS failed. RESNET model.')
+        xImg = imageTrans2(imgpath)
+        xrImg=[]
+        for img in xImg:
+            jImg=[]
+            img=img/32768*255
+            for i in img:
+                kImg=np.dstack((i,i,i))
+                jImg.append(kImg[0])
+            xrImg.append(jImg)
+        xrImg=np.array(xrImg)
     x=createTabInput(age,sex,week,fvc,percent,smokingStatus,scalerpath)
     output=conv3dPred(xrImg,x,modelpath)
     return output
 
 
 #==================== Main sub-functions ====================
+
+
 def imageTrans(imgpath):
+    #renameImg(imgpath)
+    foldersavedir=imgpath+'/jpeg/'
+    images=sorted(os.listdir(imgpath))
+    images=[img for img in images if img.endswith('.dcm')]
+
+    if not os.path.exists(foldersavedir):
+            os.mkdir(foldersavedir)
+    if len(os.listdir(foldersavedir))==48:
+        #print(".    Folder already created and images included.")
+        return foldersavedir
+
+    imagecrop=imgpath+"/"+images[round(len(images)/2)]
+    ds1 = dcmread(imagecrop)
+    imgCrop= cropImg(ds1.pixel_array)
+    
+    
+    imglist=[]
+    for j in range(len(images)):
+        ds = dcmread(imgpath+"/"+images[j])
+        imgC = ds.pixel_array[imgCrop[0]:imgCrop[1],imgCrop[2]:imgCrop[3]]
+        imglist.append(imgC)
+        
+    imgCR=resizeImg(imglist,48,48,48)
+    
+    for j in range(48):
+        imagesavedir=foldersavedir+str(j)+'.jpeg'
+        plt.figure(figsize=(1,1))
+        plt.imshow(imgCR[j], cmap = 'Greys')
+        plt.axis('off')
+        plt.savefig(imagesavedir, bbox_inches='tight',pad_inches = 0,dpi=64)
+        plt.close()
+    renameImg(foldersavedir)
+    #print(".    Folder and images have been created.")
+    return foldersavedir
+
+def loadImages(jpegpath):
+    xImg=[]
+    images=sorted(os.listdir(jpegpath))
+    for img in images:
+        rImg=plt.imread(jpegpath+img)
+        rImg=skimage.img_as_ubyte(rImg)
+        xImg.append(rImg)
+    xImg=np.array(xImg)
+    #print('.    3D images loaded.')
+    return xImg
+
+def imageTransNoSave(imgpath):
     images=sorted(os.listdir(imgpath), key=lambda v:int(v.split('.')[0]))
     if len(images)>96:
         images=images[::math.floor(len(images)/48)]    
@@ -60,16 +114,6 @@ def imageTrans(imgpath):
     xImg=np.array(imgCR)        
     return xImg
 
-def loadImages(jpegpath):
-    xImg=[]
-    images=sorted(os.listdir(jpegpath))
-    for img in images:
-        rImg=plt.imread(jpegpath+img)
-        rImg=skimage.img_as_ubyte(rImg)
-        xImg.append(rImg)
-    xImg=np.array(xImg)
-    #print('.    3D images loaded.')
-    return xImg
 
 def createTabInput(age,sex,week,fvc,percent,smokingStatus,scalerpath):
     scaler = load(open(scalerpath+'scaler.pkl', 'rb'))
