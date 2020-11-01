@@ -60,7 +60,7 @@ def main():
         st.subheader("FVC prediction for weeks 0 to 133")
 
         patient_name = image_path
-        fvc, confidence = predict_single(patient_name, week,fvc,percent,age,'Male','Ex-smoker')
+        fvc, confidence = predict_single(patient_name, week,fvc,percent,age,sex,smokingstatus)
         fvc = fvc[0][12:]
         standard_deviation = confidence[0][12:]/2
         

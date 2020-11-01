@@ -10,7 +10,6 @@ import random
 import tensorflow.keras.backend as K
 import tensorflow.keras.layers as L
 import tensorflow.keras.models as M
-import seaborn as sns
 from tensorflow.keras.utils import Sequence
 from sklearn.model_selection import train_test_split, KFold
 from sklearn.metrics import mean_absolute_error
