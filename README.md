@@ -10,7 +10,7 @@
 ```
 git clone https://github.com/VeronicaLoy/pulmonary_fibrosis_progression.git
 
-cd pulmonary-fibrosis-progression
+cd pulmonary_fibrosis_progression
 
 conda create -n fibrosis python=3.6.7
 conda activate fibrosis
